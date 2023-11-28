@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  proceedixdemoapp:
+    container_name: 'proceedixdemoapp'
+    image: ${DOCKER_REGISTRY-}proceedixdemoapp
+    build:
+      context: .
+      dockerfile: ProceedixDemoApp/Dockerfile    
+    ports:
+     - 9123:8080
+     - 9124:8081
+    depends_on :
+      postgres:
+        condition: service_healthy
+    networks:
+      - proceedixdemoapp-network
+  postgres:
+    container_name: 'postgres'
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: "proceedixdemoapp"
+      POSTGRES_PASSWORD: "z2suTI07lQil0xpzi4LbW11WzrInbtt5"
+      POSTGRES_DB: "proceedixdemoappdb"
+    healthcheck :
+      test: [ "CMD", "pg_isready", "-q", "-d", "proceedixdemoappdb", "-U", "proceedixdemoapp" ]
+      interval : 5s
+      timeout : 5s
+      retries : 5
+    networks:
+      - proceedixdemoapp-network
+
+networks:
+  proceedixdemoapp-network:
+    driver: bridge 
